@@ -25,6 +25,7 @@
 - **strong parameters は `params.expect`。** `params.require(:m).permit(...)` を書かない。改ざんされた構造（hash でない値の送りつけ）で `require().permit()` は 500（`NoMethodError`）になるが、`expect` は `ParameterMissing` → 400 に倒れる。単一フィールドの取り出しも `params.dig` / `params[]` でなく `expect`。フォーム経由の通常ミス（present な空文字）は 422、構造的に壊れた入力だけ 400、という責務分離。
 - **`params` を読むのは action と抽出境界（`*_params`）だけ。** private なロジックメソッドは `params` を読まず、必要な値を引数で受け取る。`params` への暗黙依存を作らない。
 - **`before_action :set_x` で ivar を代入しない。** 値を返す finder を action で明示呼び出しする（`@user = find_user!(params[:token])`）。失敗分岐は `rescue_from` に集約する。action を読めばそのページに何が要るか分かる状態を保つ。
+- **単発のビュー用データはコントローラが ivar で渡す。** `helper_method` は `current_user` のような横断アクセサ専用にし、「ページデータの取得口」として露出しない。
 - **`Current` はリクエスト層に閉じる。** コントローラ / ビューは `current_user` 等の helper_method 越しにアクセスし、`Current.user` を直書きしない。ドメイン層・サービスは `Current` を読まず、必要な値を引数で受け取る（隠れたグローバル依存を作らない）。
 - メモ化（`@x ||= ...`）は複数回参照されるときだけ。単一参照には付けない。
 
