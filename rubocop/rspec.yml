@@ -1,0 +1,31 @@
+# RSpec を使うアプリ向けの追加層（opt-in）。base.yml と併せて inherit_gem する。
+# 参照側アプリの Gemfile には rubocop-rspec / rubocop-rspec_rails が必要。
+#
+# omakase は app コードだけを lint し RSpec cop を意図的に含めない。ここでは
+# omakase の精神を保ったまま spec/ に RSpec cop を足す: 価値のある cop
+# （mock / correctness の臭い検出）は有効のまま、純粋にメトリクスな cop
+# （テストの長さ・expectation 数）は omakase が取り締まらないのに合わせて切る。
+plugins:
+  - rubocop-rspec
+  - rubocop-rspec_rails
+
+# メトリクス系 — omakase はテストの長さ / expectation 数を取り締まらないため合わせて OFF。
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+
+# 純スタイル cop（correctness でなく好み）。`expect(X).not_to receive` は
+# 「協力オブジェクトが呼ばれないこと」の慣用的な書き方で、spy スタイルが明快なわけではない。
+RSpec/MessageSpies:
+  Enabled: false
+
+# stub を receive_messages にまとめるかは好みの問題で、autocorrect が複数行 stub を
+# 読めない 1 行に潰しがちなため OFF。
+RSpec/ReceiveMessages:
+  Enabled: false
+
+# 明示的な `type:` メタデータを使う（infer_spec_type_from_file_location! は使わない）
+# 方針のため、「推論できる type は冗長」cop はこの選択と衝突する。
+RSpecRails/InferredSpecType:
+  Enabled: false

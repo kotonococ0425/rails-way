@@ -1,0 +1,94 @@
+# rails-way 共有 RuboCop 設定（正本）。
+# rubocop-rails-omakase をベースに、ハウススタイルの上乗せだけを明示する。
+# 参照側アプリの Gemfile には rubocop-rails-omakase が必要（Rails 既定で入っている）。
+#
+# 使い方は README.md。設計判断（lint で表現できない規約）は RAILS_WAY.md が正本。
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+AllCops:
+  NewCops: enable
+
+# 文字列リテラルの凍結を全ファイルで宣言する（マジックコメント必須）。
+Style/FrozenStringLiteralComment:
+  Enabled: true
+
+# omakase は OFF にしているが、access modifier の上下に空行を強制する（ハウススタイル）。
+Layout/EmptyLinesAroundAccessModifier:
+  Enabled: true
+
+# ロケール固有文字列の直書きを禁止し、I18n / locale ファイル利用を強制する。
+Rails/I18nLocaleTexts:
+  Enabled: true
+
+# strong parameters は params.expect を強制する（RAILS_WAY §2）。
+# require().permit() は改ざん入力で 500、expect は ParameterMissing → 400 に倒れる。
+Rails/StrongParametersExpect:
+  Enabled: true
+
+# class メソッドは `def self.foo` でなく `class << self` ブロックで定義する
+# （private はブロック内 `private` で書け、private_class_method の二重管理が不要になる）。
+# module_function による stateless utility module は `def self.` を使わないため対象外。
+Style/ClassMethodsDefinitions:
+  Enabled: true
+  EnforcedStyle: self_class
+
+# 値が同名変数のときは必ず hash value 省略の糖衣構文で書く（`foo: foo` → `foo:`）。
+# omakase は `either`（任意）だが、`always` で強制する。
+Style/HashSyntax:
+  EnforcedShorthandSyntax: always
+
+# クラス内の記述順を Ruby Style Guide のレイアウトに統一する:
+# module_inclusion → 定数 → マクロ(validates/association/scope/callback 等) →
+# public class method → initialize → public method → protected → private。
+# attr_reader は tier 分けしない（cop が macro の可視性を見ないため、専用 tier にすると
+# service object の private attr_reader まで public 化を迫られカプセル化が壊れる）。
+Layout/ClassStructure:
+  Enabled: true
+  Categories:
+    module_inclusion:
+      - include
+      - prepend
+      - extend
+    macros:
+      - belongs_to
+      - has_one
+      - has_many
+      - has_and_belongs_to_many
+      - validates
+      - validate
+      - validates_with
+      - validates_each
+      - scope
+      - default_scope
+      - normalizes
+      - acts_as_tenant
+      - has_secure_password
+      - delegate
+      - serialize
+      - before_validation
+      - after_validation
+      - before_save
+      - around_save
+      - after_save
+      - before_create
+      - around_create
+      - after_create
+      - before_update
+      - around_update
+      - after_update
+      - before_destroy
+      - around_destroy
+      - after_destroy
+      - after_commit
+      - after_rollback
+      - after_initialize
+      - after_find
+  ExpectedOrder:
+    - module_inclusion
+    - constants
+    - macros
+    - public_class_methods
+    - initializer
+    - public_methods
+    - protected_methods
+    - private_methods
