@@ -56,9 +56,13 @@
 
 ## 6. 配置
 
+- **Service 層を設けない。** ビジネスプロセスは、それが属する集約の名前空間配下のドメインオブジェクト（`app/models/<aggregate>/` の PORO）に本物の名前で書く（`Household::Purge`・`User::Deletion`）。`XxxService` という命名は禁止 — 「Service」は "何かをするもの" という同語反復で、責務を名指ししない。エントリポイントも `.call` でなく動詞メソッド（`purge!` / `confirm` / `intake`）にする（→ REFERENCES: Vanilla Rails is plenty）。
+- **実体のないトップレベル名前空間を作らない。** 集約ルートは ActiveRecord モデル。対応するエンティティを持たない「概念」（`Review::` のような）をディレクトリ都合で名前空間に昇格しない。
+- **読み取り専用の集計・検索は `app/queries`。** 副作用を持たない query object の家。
+- **外部 API クライアント・I/O adapter は `lib/`。** ドメインロジック・状態遷移・バリデーションを持ち込まない「通信の代理人」に徹する。役割語（Client / Adapter）はこの層でのみ使う。
 - request 状態に依存しない純粋ロジックはコントローラ concern でなく `lib/` の純モジュールに置く。コントローラ concern は「コントローラ層の振る舞い」専用。
 - 決定論的なドメインロジックが育ったら `lib/<domain>` の **ActiveRecord 非依存な純 PORO** に隔離し、Rails との授受は value object だけで行う（写像は Rails 側が所有）。単体で速くテストでき、フレームワークの都合から切り離される。
-- 一回限りの運用スクリプトは eager-load される `app/services` に置かず、非 autoload の one-shot 置き場に隔離する（常設コードと区別する）。
+- 一回限りの運用スクリプトは eager-load される `app/` 配下に置かず、非 autoload の one-shot 置き場に隔離する（常設コードと区別する）。
 
 ## 7. テスト
 
