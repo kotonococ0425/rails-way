@@ -26,6 +26,11 @@ Lint/AmbiguousBlockAssociation:
     - change
     - not_change
 
+# キーワード引数名は呼び出し契約の一部で、位置引数のように `_` 接頭辞へ改名できない
+# （interface 準拠のフェイク実装などで未使用になるのは正当）。
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
 # 文字列リテラルの凍結を全ファイルで宣言する（マジックコメント必須）。
 Style/FrozenStringLiteralComment:
   Enabled: true

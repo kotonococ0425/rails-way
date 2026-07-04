@@ -45,7 +45,7 @@
 - **ビューで DB クエリを発行しない。** `.exists?` / `.count` / `where` を `.erb` に書かない。クエリはコントローラで実行し、ivar かプリロード済みデータを渡す。全ページで描画されるレイアウト内の集計クエリは特に禁止。
 - **View は Rails ネイティブで組む**（partial + strict locals + presenter + helper + CSS component 層）。ViewComponent 等の View 抽象 gem は入れない。CRUD 主体・再利用 widget 少数の個人開発規模では抽象コストが便益を上回る。重複は種類で解き分ける: **スタイルの重複は CSS、構造の重複は partial、表示ロジックの散在は presenter**。
 - **再利用 partial は strict locals 必須。** 複数箇所から呼ぶ `.erb` は先頭で `<%# locals: (...) %>` を宣言し、暗黙の変数スコープ依存を禁止する。引数契約の取り違えが `StrictLocalsError` で構造検出される。
-- **表示ロジックは presenter / 対象別 helper へ。** モデル 1 件に紐づく表示ロジック（ラベル・色 class・フォールバック名）は presenter PORO（`app/presenters`）に凝集し、ActiveRecord / ActionView 非依存に保って単体テストする。汎用フォーマッタは対象別 helper へ。`ApplicationHelper` は横断 glue だけに保ち、ゴミ箱にしない。
+- **表示ロジックは presenter / 対象別 helper へ。** モデル 1 件に紐づく表示ロジック（ラベル・色 class・フォールバック名）は presenter PORO（`app/presenters`）に凝集し、ActiveRecord / ActionView 非依存に保って単体テストする。presenter は Rails が提供する層ではなく、ただの PORO を `app/presenters/` に置くだけの自作規約（`app/` 直下のディレクトリは Zeitwerk が autoload する）。Draper のような decorator gem は入れない。汎用フォーマッタは対象別 helper へ。`ApplicationHelper` は横断 glue だけに保ち、ゴミ箱にしない。
 - **反復するユーティリティクラスの塊は CSS 側で束ねる**（Tailwind なら `@utility` で `card` のような component クラスに）。純スタイルの重複を Ruby の wrapper partial で包まない。
 
 ## 5. JavaScript
