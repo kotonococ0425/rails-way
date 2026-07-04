@@ -27,7 +27,6 @@
 - **`before_action :set_x` で ivar を代入しない。** 値を返す finder を action で明示呼び出しする（`@user = find_user!(params[:token])`）。失敗分岐は `rescue_from` に集約する。action を読めばそのページに何が要るか分かる状態を保つ。
 - **単発のビュー用データはコントローラが ivar で渡す。** `helper_method` は `current_user` のような横断アクセサ専用にし、「ページデータの取得口」として露出しない。
 - **`Current` はリクエスト層に閉じる。** コントローラ / ビューは `current_user` 等の helper_method 越しにアクセスし、`Current.user` を直書きしない。ドメイン層・サービスは `Current` を読まず、必要な値を引数で受け取る（隠れたグローバル依存を作らない）。
-- メモ化（`@x ||= ...`）は複数回参照されるときだけ。単一参照には付けない。
 
 ## 3. モデル / ドメイン
 

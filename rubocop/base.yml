@@ -8,6 +8,24 @@ inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 AllCops:
   NewCops: enable
 
+# ---- correctness 層 ----
+# omakase はスタイル特化（DisabledByDefault）で、Lint / Security / Performance の
+# correctness 系 department がほぼ眠る。そこは上流既定で有効化する。
+# スタイル系（Metrics / Naming / Style の残り）を取り締まらないのは omakase の
+# 判断に従う（そこを黙らせるために omakase を選んでいる）。
+Lint:
+  Enabled: true
+Security:
+  Enabled: true
+Performance:
+  Enabled: true
+
+# spec / test の `expect { ... }.to change { ... }` 慣用句を誤検知しないようにする。
+Lint/AmbiguousBlockAssociation:
+  AllowedMethods:
+    - change
+    - not_change
+
 # 文字列リテラルの凍結を全ファイルで宣言する（マジックコメント必須）。
 Style/FrozenStringLiteralComment:
   Enabled: true
@@ -23,6 +41,66 @@ Rails/I18nLocaleTexts:
 # strong parameters は params.expect を強制する（RAILS_WAY §2）。
 # require().permit() は改ざん入力で 500、expect は ParameterMissing → 400 に倒れる。
 Rails/StrongParametersExpect:
+  Enabled: true
+
+# ---- Rails correctness 選抜 ----
+# 日付/時刻規約（RAILS_WAY §3）の機械化: 壁時計（Time.now / Date.today）を禁止し
+# TZ 安全な API（Time.current / Date.current 等）に倒す。
+Rails/TimeZone:
+  Enabled: true
+Rails/Date:
+  Enabled: true
+
+# 失敗を握りつぶさない: 返り値を見ない save / update は bang 版を強制する。
+Rails/SaveBang:
+  Enabled: true
+
+# uniqueness validation は DB の unique index とセットで書く（アプリ層だけの
+# 一意性は並行リクエストで破れる。「構造で強制」の原則）。
+Rails/UniqueValidationWithoutIndex:
+  Enabled: true
+
+# 親削除時の子レコードの扱い（dependent:）を必ず明示する（orphan 防止）。
+# DB の on_delete で賄う関連は、理由コメント + 個別 disable で明示する。
+Rails/HasManyOrHasOneDependent:
+  Enabled: true
+
+# boolean カラムの三値化（NULL 許容）と、default なし NOT NULL 追加を禁止する。
+Rails/ThreeStateBooleanColumn:
+  Enabled: true
+Rails/NotNullColumn:
+  Enabled: true
+
+# render 後の flash 代入（次リクエストへ漏れる実バグ）を検出する。
+Rails/ActionControllerFlashBeforeRender:
+  Enabled: true
+
+# where.not(a: x, b: y) は NOT(a AND b) になる罠のため複数条件を禁止する。
+Rails/WhereNotWithMultipleConditions:
+  Enabled: true
+
+# enum の値重複を検出する。
+Rails/EnumUniqueness:
+  Enabled: true
+
+# validation を飛ばす API（upsert / update_column / touch 等）を可視化する。
+# 意図して飛ばす箇所（guarded writer 内部など・RAILS_WAY §3）は理由コメント +
+# 個別 disable で境界を明示する。
+Rails/SkipsModelValidations:
+  Enabled: true
+
+# rollback できない migration を検出する。
+Rails/ReversibleMigration:
+  Enabled: true
+
+# アプリコードに puts / print を書かない（seeds は許可）。
+Rails/Output:
+  Enabled: true
+  Exclude:
+    - db/seeds.rb
+
+# 定数は freeze する（mutable な定数が共有状態になるのを防ぐ）。
+Style/MutableConstant:
   Enabled: true
 
 # class メソッドは `def self.foo` でなく `class << self` ブロックで定義する
