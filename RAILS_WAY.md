@@ -38,7 +38,6 @@
 - インスタンス変数 / メソッド名はモデル名に揃える（`@email_ingress` / `email_ingress`）。型が分かる名前にする。
 - **inflection は設計初期に整える。** staff / metadata のような非可算のドメイン語は `config/initializers/inflections.rb` の `inflect.uncountable` で宣言する（テーブル名・routing helper・関連名・autoload の全部に波及するため後から直すのは高くつく）。ただし登録するのは実際に使うドメイン語だけ。気に入らないテーブル名の回避に使わない。頭字語は `acronym`、不規則複数形は `irregular` を使い分ける（→ REFERENCES: Andy Croll）。
 - **カレンダー日とシステム時刻を型で区別する。** 事実としての「日付」（取引日・締め日）は `Date`、イベントの発生時刻（`created_at` / `seen_at`）は `Time`。元データに時刻精度がないものを `Time` にしない（TZ 混入と捏造精度の温床）。
-- **`users` を参照する外部キーは `on_delete` を明示する。** Postgres 既定の `NO ACTION` のままだと退会（`user.destroy!`）が参照行 1 件で `InvalidForeignKey` → 500 になる。監査目的で行を残す参照は `foreign_key: { on_delete: :nullify }` + カラム `null: true`。
 - クラス / モジュール内部だけで使う定数は `private_constant` で隠蔽する。公開 API の定数だけを public に残す。
 
 ## 4. View

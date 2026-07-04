@@ -83,11 +83,18 @@ Rails/WhereNotWithMultipleConditions:
 Rails/EnumUniqueness:
   Enabled: true
 
-# validation を飛ばす API（upsert / update_column / touch 等）を可視化する。
+# validation を飛ばす API（upsert / update_column 等）を可視化する。
 # 意図して飛ばす箇所（guarded writer 内部など・RAILS_WAY §3）は理由コメント +
-# 個別 disable で境界を明示する。
+# 個別 disable で境界を明示する。timestamp 専用の touch / touch_all と、
+# テストのセットアップ（検証対象の状態を意図的に作る）は対象外。
 Rails/SkipsModelValidations:
   Enabled: true
+  AllowedMethods:
+    - touch
+    - touch_all
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
 
 # rollback できない migration を検出する。
 Rails/ReversibleMigration:
