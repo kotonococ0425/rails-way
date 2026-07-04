@@ -48,7 +48,7 @@ inherit_gem:
 参照元アプリで bundler の local git override を使う:
 
 ```bash
-bundle config set --local local.rails_way ~/dev/rails-way
+bundle config set --local local.rails_way /path/to/rails-way  # clone した場所
 ```
 
 （解除は `bundle config unset --local local.rails_way`。lockfile の revision とブランチが一致している必要がある）
